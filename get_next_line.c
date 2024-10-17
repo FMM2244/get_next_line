@@ -12,40 +12,12 @@
 
 #include "get_next_line.h"
 
-size_t	ft_strlen(const char *s)
-{
-	size_t	i;
-
-	i = 0;
-	while (s[i] != '\0')
-		i++;
-	return (i);
-}
-
-char	*ft_strchr(const char *s, int c)
-{
-	while (*s)
-	{
-		if (*s == (char)c)
-			return ((char *)s);
-		s++;
-	}
-	if ((char)c == '\0')
-		return ((char *)s);
-	return (NULL);
-}
-
 void	ft_strlcat(char *dst, const char *src, size_t size)
 {
 	size_t	len;
 	size_t	i;
 
 	len = ft_strlen(dst);
-	if (len + size > 4096)
-	{
-		ft_strlcat(dst, src, 4096 - len);
-		return ;
-	}
 	i = 0;
 	while (i < size && src[i] != '\0')
 	{
@@ -55,17 +27,30 @@ void	ft_strlcat(char *dst, const char *src, size_t size)
 	dst[len + i] = '\0';
 }
 
-void	ft_shift(char s[], int i)
+int	ft_reader(char *str, char *line, int i)
 {
-	int	counter;
-
-	counter = 0;
-	while (s[counter + i] != '\0')
+	while (!ft_strchr(line, '\n'))
 	{
-		s[counter] = s[counter + i];
-		counter++;
+		str = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
+		if (!str)
+			return (-1);
+			i = read(fd, str, BUFFER_SIZE);
+		if (i == -1)
+		{
+			free(str)
+			str = NULL;
+			return (-1);
+		}
+		if (i == 0)
+		{
+			free(str);
+			break ;
+		}
+		str[i] = '\0';
+		ft_strlcat(line, str, BUFFER_SIZE + 1);
+		free(str);
 	}
-	s[counter] = '\0';
+	return (i);
 }
 
 char	*get_next_line(int fd)
@@ -77,38 +62,14 @@ char	*get_next_line(int fd)
 
 	if (!BUFFER_SIZE)
 		return (NULL);
-	while (!ft_strchr(save, '\n'))
-	{
-		str = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
-		if (!str)
-			return (NULL);
-		i = read(fd, str, BUFFER_SIZE);
-		//printf("i: %d\n", i);
-		if (i == -1)
-		{
-			free(str);
-			str = NULL;
-			return (NULL);
-		}
-		if (i == 0)
-		{
-			free(str);
-			break ;
-		}
-		str[i] = '\0';
-		ft_strlcat(save, str, BUFFER_SIZE + 1);
-		free(str);
-	}
-	if (save[0] == '\0')
+	i = 1;
+	i = ft_reader(str, line, i);
+	if (i == -1 || line[0] = '\0')
 		return (NULL);
 	i = 0;
-	while (save[i] != '\n' && save[i] != '\0')
+	while (line[i] != '\n')
 		i++;
-	str = (char *)malloc((i + 2) * sizeof(char));
-	if (!str)
-		return (NULL);
-	str[0] = '\0';
-	ft_strlcpy(str, save, i + (save[i] == '\n') + 1);
-	ft_shift(save, i + (save[i] == '\n'));
-	return (str);
+	ft_strlcat(save, line, i + 1);
+	ft_bzero(line + i + 1);
+	return (line);
 }
