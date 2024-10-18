@@ -35,7 +35,16 @@ char    *ft_strchr(const char *s, int c)
         return (NULL);
 }
 
-void	ft_bzero()
+void	ft_bzero(void *str)
 {
-	
+	unsigned char	*temp;
+
+	if (!str)
+		return ;
+	temp = (unsigned char *)str; 
+	while (*temp != 0)
+	{
+		*temp = 0;
+		temp++;
+	}
 }
