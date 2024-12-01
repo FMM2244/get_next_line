@@ -12,9 +12,9 @@
 
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
-#ifndef BUFFER_SIZE
-# define BUFFER_SIZE 7
-#endif
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 7
+# endif
 
 # include <stddef.h>
 # include <string.h>
@@ -23,13 +23,12 @@
 # include <unistd.h>
 # include <fcntl.h>
 
-
 size_t	ft_strlen(const char *s);
 char	*get_next_line(int fd);
 void	ft_strlcpy(char *dst, const char *src, size_t size);
 char	*ft_strchr(const char *s, int c);
 void	ft_strlcat(char *dst, const char *src, size_t size);
 char	*f_downsize(char s[], int i);
-void	ft_bzero(void *str);
+void	*ft_memset(void *s, int c, size_t n);
 
 #endif

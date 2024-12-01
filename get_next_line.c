@@ -27,30 +27,24 @@ void	ft_strlcat(char *dst, const char *src, size_t size)
 	dst[len + i] = '\0';
 }
 
-char	*ft_resize(char *s)
+void	ft_shift(char s[], int i)
 {
-	char	*temp; 
-	int		i;
+	int	counter;
 
-	temp = (char *)malloc(ft_strlen(s) + 1);
-	i = -1;
-	while (s[++i] != 0)
-		temp[i] = s[i];
-	temp[i] = '\0';
-	free(s);
-	s = (char *)malloc((ft_strlen(temp) * 2) + 1);
-	i = -1;
-	while (temp[++i] != 0)
-		s[i] = temp[i];
-	s[i] = '\0';
-	free(temp);
-	return (s);
+	counter = 0;
+	while (s[counter + i] != '\0')
+	{
+		s[counter] = s[counter + i];
+		counter++;
+	}
+	s[counter] = '\0';
 }
 
-int	ft_reader(char *str, char *line, int i, int fd)
+int	ft_reader(char save[], char *str, int i, int fd)
 {
-	while (!ft_strchr(line, '\n'))
+	while (!ft_strchr(save, '\n'))
 	{
+		str = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
 		if (!str)
 			return (-1);
 		i = read(fd, str, BUFFER_SIZE);
@@ -58,7 +52,7 @@ int	ft_reader(char *str, char *line, int i, int fd)
 		{
 			free(str);
 			str = NULL;
-			return (-1);
+			return (i);
 		}
 		if (i == 0)
 		{
@@ -66,41 +60,36 @@ int	ft_reader(char *str, char *line, int i, int fd)
 			break ;
 		}
 		str[i] = '\0';
-		line = ft_resize(line);
-		ft_strlcat(line, str, BUFFER_SIZE + 1);
+		ft_strlcat(save, str, BUFFER_SIZE + 1);
 		free(str);
-		str = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
 	}
 	return (i);
 }
 
 char	*get_next_line(int fd)
 {
-	static char	save[BUFFER_SIZE + 1];
-	char		*line;
+	static char	save[100000];
 	char		*str;
 	int			i;
 
 	if (!BUFFER_SIZE)
 		return (NULL);
 	i = 1;
-	str = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
-	if (!str)
-		return (NULL);
-	line = (char *)malloc(BUFFER_SIZE + 1);
-	if (!line)
-		return (NULL);
-	i = ft_reader(str, line, i, fd);
-	if (i == -1 || line[0] == '\0')
+	str = NULL;
+	i = ft_reader(save, str, i, fd);
+	if (i == -1 || save[0] == '\0')
 	{
-		free(line);
-		free(str);
+		save[0] = '\0';
 		return (NULL);
 	}
 	i = 0;
-	while (line[i] != '\n')
+	while (save[i] != '\n' && save[i] != '\0')
 		i++;
-	ft_strlcat(save, line, i + 1);
-	ft_bzero(line + i + 1);
-	return (line);
+	str = (char *)malloc((i + 2) * sizeof(char));
+	if (!str)
+		return (NULL);
+	str[0] = '\0';
+	ft_strlcpy(str, save, i + (save[i] == '\n') + 1);
+	ft_shift(save, i + (save[i] == '\n'));
+	return (str);
 }
